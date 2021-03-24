@@ -31,6 +31,7 @@ typedef struct {
 		   unsigned int producer_task;
 		   unsigned int task_ID;
 		   unsigned int app_ID;
+		   unsigned int peripheral_source_pe;
 	};
 
 	union {								//!<Generic union
@@ -39,6 +40,7 @@ typedef struct {
 	   unsigned int master_ID;
 	   unsigned int hops;
 	   unsigned int period;
+	   unsigned int peripheral_task_id;
 	};
 
 	unsigned int source_PE;				//!<Store the packet source PE address
@@ -111,5 +113,6 @@ void send_packet(ServiceHeader *, unsigned int, unsigned int);
 
 void read_packet(ServiceHeader *);
 
+void send_packet_raw(ServiceHeader *, unsigned int, unsigned int, unsigned int);
 
 #endif /* SOFTWARE_INCLUDE_PACKET_PACKET_H_ */

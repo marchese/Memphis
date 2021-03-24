@@ -251,6 +251,30 @@ void write_local_msg_to_task(TCB * task_tcb_ptr, int msg_lenght, int * msg_data)
 	task_tcb_ptr->scheduling_ptr->waiting_msg = 0;
 }
 
+void send_io_request(int task_id, unsigned int target_peripheral, unsigned int requestingPE)
+{
+	ServiceHeader *p = get_service_header_slot();
+	p->header = target_peripheral;
+	p->payload_size = 3;
+	p->service = IO_REQ;
+	p->peripheral_source_pe = requestingPE;
+	p->peripheral_task_id = task_id;
+
+	send_packet_raw(p, p->payload_size, 0, 0);
+}
+
+void send_io_write(int task_id, unsigned int target_peripheral, unsigned int requestingPE, Message *msg)
+{
+	ServiceHeader *p = get_service_header_slot();
+	p->header = target_peripheral;
+	p->service = IO_WRITE;
+	p->peripheral_source_pe = requestingPE;
+	p->peripheral_task_id = task_id;
+	p->msg_lenght = msg->length;
+
+	send_packet(p, (unsigned int)msg->msg, msg->length);
+}
+
 /** Syscall handler. It is called when a task calls a function defined into the api.h file
  * \param service Service of the syscall
  * \param arg0 Generic argument
@@ -481,21 +505,39 @@ int Syscall(unsigned int service, unsigned int arg0, unsigned int arg1, unsigned
 
 		case IOSEND:
 
-			if ( MemoryRead(DMNI_SEND_ACTIVE) ){
+			if (MemoryRead(DMNI_SEND_ACTIVE)){
 				return 0;
 			}
 
-			producer_task =  current->id;
-			consumer_task = (int) arg1; //In this case the consumer is not a task but a peripheral
+			puts("Build msg to peripheral:\n");
+			puts("\tperipheral_addr: ");
+			puts(itoh(arg1));
+			puts("\n");
 
-			puts("Nothing to be done! System SendIO not implemented yet!\n");
+			putsv("\ttask_id: ", current->id & 0xFF);
 
-			/*TODO: implement the protocol between the distributed usage of peripheral among applications
-			 * Such protocol must ensure synchronization between requesting task to create a fair peripheral access
-			 * Distributed mutual exclusion algorithm should be investigated.
-			 */
+			msg_read = (Message *)((current->offset) | arg0);
+			for (int i = 0; i < msg_read->length; i++)
+				msg_write_pipe.msg[i] = msg_read->msg[i];
+			msg_write_pipe.length = msg_read->length;
 
-			break;
+			putsv("\tmsg_length: ", msg_write_pipe.length);
+
+			for (int i = 0; i < msg_write_pipe.length; i++) {
+				puts("\tmsg(");
+				puts(itoa(i));
+				puts("): ");
+				puts(itoa(msg_write_pipe.msg[i]));
+				puts("\n");
+			}
+
+			send_io_request(current->id & 0xFF, arg1, net_address);
+			puts("\tsend_io_request DONE\n");
+
+			//send_io_write(current->id, arg1, net_address, &msg_write_pipe);
+			//puts("\tsend_io_read DONE\n");
+
+			return 1;
 
 		case IORECEIVE:
 

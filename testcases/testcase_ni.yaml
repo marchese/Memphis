@@ -1,0 +1,14 @@
+hw:
+   page_size_KB:  32
+   tasks_per_PE: 1
+   model_description: vhdl
+   noc_buffer_size: 8
+   mpsoc_dimension: [2,2]
+   cluster_dimension: [2,2]
+   Peripherals:
+    - name: APP_INJECTOR
+      pe: 0,0
+      port: S
+    - name: TEST_PERIPHERAL
+      pe: 1,1
+      port: E

@@ -109,6 +109,20 @@ void send_packet(ServiceHeader *p, unsigned int initial_address, unsigned int dm
 
 }
 
+void send_packet_raw(ServiceHeader *p, unsigned int payload_size, unsigned int initial_address, unsigned int dmni_msg_size)
+{
+	while (MemoryRead(DMNI_SEND_ACTIVE));
+
+	MemoryWrite(DMNI_SIZE, p->payload_size + 2);
+	MemoryWrite(DMNI_ADDRESS, (unsigned int)p);
+	if (dmni_msg_size > 0){
+		MemoryWrite(DMNI_SIZE_2, dmni_msg_size);
+		MemoryWrite(DMNI_ADDRESS_2, initial_address);
+	}
+	MemoryWrite(DMNI_OP, READ);
+	MemoryWrite(DMNI_START, 1);
+}
+
 /**Function that abstracts the process to read a generic packet from NoC by programming the DMNI
  * \param p Packet pointer
  */

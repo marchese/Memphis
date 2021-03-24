@@ -1,0 +1,6 @@
+apps:
+  - name: ext_mem
+    cluster: 0
+    start_time_ms: 0
+    static_mapping:
+      ext_mem: [1,0]

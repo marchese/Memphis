@@ -31,9 +31,15 @@ entity Memphis is
 		 	
 		 	memphis_app_injector_rx 		: in std_logic;
 		 	memphis_app_injector_credit_o : out std_logic;
-		 	memphis_app_injector_data_in 	: in regflit
+		 	memphis_app_injector_data_in 	: in regflit;
 		 	
 		 	-- IO interface - Create the IO interface for your component here:
+			memphis_test_peripheral_tx	: out std_logic;
+			memphis_test_peripheral_credit_i	: in std_logic;
+			memphis_test_peripheral_data_out	: out regflit;
+			memphis_test_peripheral_rx	: in std_logic;
+			memphis_test_peripheral_credit_o	: out std_logic;
+			memphis_test_peripheral_data_in	: in regflit
         	
         );
 end;
@@ -161,6 +167,15 @@ architecture Memphis of Memphis is
 		 		end generate;
 		 		
 		 		--Insert the IO wiring for your component here:
+                
+				test_peripheral_connection: if i = TEST_PERIPHERAL and io_port(i) /= NPORT generate
+					memphis_test_peripheral_tx	<=	tx(TEST_PERIPHERAL)(io_port(i));
+					memphis_test_peripheral_data_out <= data_out(TEST_PERIPHERAL)(io_port(i));
+					credit_i(TEST_PERIPHERAL)(io_port(i)) <= memphis_test_peripheral_credit_i;
+					rx(TEST_PERIPHERAL)(io_port(i)) <= memphis_test_peripheral_rx ;
+					memphis_test_peripheral_credit_o  <= credit_o(TEST_PERIPHERAL)(io_port(i));
+					data_in(TEST_PERIPHERAL)(io_port(i)) <= memphis_test_peripheral_data_in;
+				end generate;
                 
         end generate proc;
            

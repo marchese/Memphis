@@ -9,7 +9,7 @@ from time import sleep
 #3. Simulate the system, if sc(gcc) it execute ./Memphis, is scmod or vhdl it open ModelSim/Questa
 
 
-ENABLE_GUI=1
+ENABLE_GUI=0
 
 def call_debugger(testacase_path):
     tarffic_router_path = testacase_path+"/debug/traffic_router.txt"
@@ -96,10 +96,10 @@ elif system_model == "scmod" or system_model == "vhdl":
     sim_file.close()
     
     #Runs Questa in with GUI enabled
-    os.system("cd "+SCENARIO_PATH+"; vsim -do sim.do")
+    #os.system("cd "+SCENARIO_PATH+"; vsim -do sim.do")
     
     #Runs Questa in command line
-    #os.system("cd "+SCENARIO_PATH+"; vsim -c -do sim.do")
+    os.system("cd "+SCENARIO_PATH+"; vsim -c -do sim.do")
     
         
         

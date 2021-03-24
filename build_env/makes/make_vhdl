@@ -6,6 +6,7 @@ CC = sccom
 SC_C = @ $(CC) -work $(LIB) -g -Wno-write-strings -B/usr/bin/
 
 COMP =vcom -work $(LIB)
+COMP_2008 =vcom -2008 -work $(LIB)
 
 #VHDL files
 MEMPHIS_PKG	=memphis_pkg
@@ -60,7 +61,7 @@ $(IO_TGT): $(IO_SRC)
 	
 $(IO_VHDL): $(IO_VHDL_SRC)
 	@printf "${COR}Compiling VHDL source: %s ...${NC}\n" "$<"
-	$(COMP) $<
+	$(COMP_2008) $<
 
 $(PE): $(PE_SRC)
 	@printf "${COR}Compiling VHDL source: %s ...${NC}\n" "$(dir $<)$@.vhd"

@@ -53,6 +53,12 @@ architecture test_bench of test_bench is
 	 	signal memphis_injector_data_in 	: regflit;
 	 	
 	 	-- Create the signals of your IO component here:
+		signal memphis_test_peripheral_tx		: std_logic;
+ 		signal memphis_test_peripheral_credit_i	: std_logic;
+	 	signal memphis_test_peripheral_data_out	: regflit;
+	 	signal memphis_test_peripheral_rx		: std_logic;
+ 		signal memphis_test_peripheral_credit_o	: std_logic;
+	 	signal memphis_test_peripheral_data_in	: regflit;
 		
 begin
 
@@ -72,6 +78,17 @@ begin
 	);
 	
 	-- Peripheral 2 - Instantiate your IO component here:
+	Test_Peripheral : entity work.test_peripheral
+	port map(
+		clock		=> clock,
+		reset		=> reset,
+		rx			=> memphis_test_peripheral_tx,
+		data_in		=> memphis_test_peripheral_data_out,
+		credit_out	=> memphis_test_peripheral_credit_i,
+		tx			=> memphis_test_peripheral_rx,
+		data_out	=> memphis_test_peripheral_data_in,
+		credit_in	=> memphis_test_peripheral_credit_o
+	);
 
 
    --
@@ -89,10 +106,15 @@ begin
 		
 		memphis_app_injector_rx		=> memphis_injector_rx,
 		memphis_app_injector_credit_o	=> memphis_injector_credit_o,
-		memphis_app_injector_data_in 	=> memphis_injector_data_in
+		memphis_app_injector_data_in 	=> memphis_injector_data_in,
 		
 		-- Peripheral 2 - Connect your IO component to Memphis here: 
-			
+		memphis_test_peripheral_tx			=> memphis_test_peripheral_tx,
+		memphis_test_peripheral_credit_i	=> memphis_test_peripheral_credit_i,
+		memphis_test_peripheral_data_out	=> memphis_test_peripheral_data_out,
+		memphis_test_peripheral_rx			=> memphis_test_peripheral_rx,
+		memphis_test_peripheral_credit_o	=> memphis_test_peripheral_credit_o,
+		memphis_test_peripheral_data_in		=> memphis_test_peripheral_data_in
 	);
 	   
 	   

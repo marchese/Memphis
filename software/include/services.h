@@ -46,5 +46,12 @@
 #define 	REAL_TIME_CHANGE				0x00000280
 #define		NEW_APP_REQ						0x00000290 //Injector to Mestre (carries num_tasks)
 #define		APP_REQ_ACK						0x00000300 //Mestre to Injector (carries cluster addr)
+#define		IO_REQ							0x00000400
+#define		IO_REQ_ACK						0x00000410
+#define		IO_REQ_NACK						0x00000420
+#define		IO_WRITE						0x00000430
+#define		IO_WRITE_RESPONSE				0x00000440
+#define		IO_READ							0x00000450
+#define		IO_READ_RESPONSE				0x00000460
 
 #endif
