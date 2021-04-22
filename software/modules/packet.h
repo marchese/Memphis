@@ -32,6 +32,7 @@ typedef struct {
 		   unsigned int task_ID;
 		   unsigned int app_ID;
 		   unsigned int peripheral_source_pe;
+		   unsigned int peripheral_id;
 	};
 
 	union {								//!<Generic union
@@ -43,8 +44,16 @@ typedef struct {
 	   unsigned int peripheral_task_id;
 	};
 
-	unsigned int source_PE;				//!<Store the packet source PE address
-	unsigned int timestamp;				//!<Store the packet timestamp, filled automatically by send_packet function
+	union {
+		unsigned int source_PE;				//!<Store the packet source PE address
+		unsigned int peripheral_address;
+	};
+
+	union {
+		unsigned int timestamp;				//!<Store the packet timestamp, filled automatically by send_packet function
+		unsigned int peripheral_write_size;
+	};
+
 	unsigned int transaction;			//!<Unused field for while
 
 	union {								//!<Generic union

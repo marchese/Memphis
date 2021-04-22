@@ -15,7 +15,7 @@
                 "source source_memphis;",
                 "module load questa;",
                 "module load systemc;",
-                "memphis-all testcases/testcase_ni.yaml testcases/scenario_ni.yaml 5;",
+                "memphis-all testcases/testcase_ni.yaml testcases/scenario_ni.yaml 1;",
             ]
         }
     ]

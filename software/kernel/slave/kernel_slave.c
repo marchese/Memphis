@@ -263,16 +263,29 @@ void send_io_request(int task_id, unsigned int target_peripheral, unsigned int r
 	send_packet_raw(p, p->payload_size, 0, 0);
 }
 
-void send_io_write(int task_id, unsigned int target_peripheral, unsigned int requestingPE, Message *msg)
+void send_io_write(int task_id, unsigned int target_peripheral, unsigned int requestingPE, unsigned int peripheral_address, Message *msg)
 {
 	ServiceHeader *p = get_service_header_slot();
 	p->header = target_peripheral;
+	p->payload_size = 5 + msg->length;
 	p->service = IO_WRITE;
 	p->peripheral_source_pe = requestingPE;
 	p->peripheral_task_id = task_id;
-	p->msg_lenght = msg->length;
+	p->peripheral_address = peripheral_address;
+	p->peripheral_write_size = msg->length;
 
-	send_packet(p, (unsigned int)msg->msg, msg->length);
+	putsv("msg_length: ", msg->length);
+	for (int i = 0; i < msg->length; i++) {
+		puts("\tmsg(");
+		puts(itoa(i));
+		puts("): ");
+		puts(itoa(msg->msg[i]));
+		//puts(" => addr: ");
+		//puts(itoa(&msg->msg[i]));
+		puts("\n");
+	}
+
+	send_packet_raw(p, p->payload_size, msg->msg, msg->length);
 }
 
 /** Syscall handler. It is called when a task calls a function defined into the api.h file
@@ -509,35 +522,24 @@ int Syscall(unsigned int service, unsigned int arg0, unsigned int arg1, unsigned
 				return 0;
 			}
 
-			puts("Build msg to peripheral:\n");
-			puts("\tperipheral_addr: ");
+			//puts("Build msg to peripheral:\n");
+			puts("peripheral_addr: ");
 			puts(itoh(arg1));
 			puts("\n");
 
-			putsv("\ttask_id: ", current->id & 0xFF);
-
-			msg_read = (Message *)((current->offset) | arg0);
-			for (int i = 0; i < msg_read->length; i++)
-				msg_write_pipe.msg[i] = msg_read->msg[i];
-			msg_write_pipe.length = msg_read->length;
-
-			putsv("\tmsg_length: ", msg_write_pipe.length);
-
-			for (int i = 0; i < msg_write_pipe.length; i++) {
-				puts("\tmsg(");
-				puts(itoa(i));
-				puts("): ");
-				puts(itoa(msg_write_pipe.msg[i]));
-				puts("\n");
-			}
+			putsv("task_id: ", current->id & 0xFF);
 
 			send_io_request(current->id & 0xFF, arg1, net_address);
-			puts("\tsend_io_request DONE\n");
+			puts("send_io_request DONE\n");
 
-			//send_io_write(current->id, arg1, net_address, &msg_write_pipe);
-			//puts("\tsend_io_read DONE\n");
+			// wait for ack/nack
+			current->scheduling_ptr->waiting_msg = 1;
+			schedule_after_syscall = 1;
+			puts("waiting for the ACK\n");
+			return 0;
 
-			return 1;
+			// When ACK/NACK is received the execution resumes from the InterruptService
+			// OS_InterruptServiceRoutine() -> handle_packet() -> IO_REQ_ACK/IO_REQ_NACK
 
 		case IORECEIVE:
 
@@ -627,10 +629,53 @@ int handle_packet(volatile ServiceHeader * p) {
 	PipeSlot * slot_ptr;
 	Message * msg_ptr;
 	TCB * tcb_ptr = 0;
+	unsigned int *arg1;
+	//Message tmp_msg;
 
 	need_scheduling = 0;
 
+	//putsv("p->service: ", p->service);
 	switch (p->service) {
+
+	case IO_REQ_ACK:
+		puts("IO_REQ_ACK\n");
+		tcb_ptr = searchTCB(p->consumer_task);
+
+		// Send the actual read/write
+		msg_ptr = (Message *)(tcb_ptr->offset | tcb_ptr->reg[3]);
+		send_io_write(p->peripheral_task_id, p->peripheral_id, p->header, 3, msg_ptr);
+		puts("send_io_write DONE\n");
+
+		// Update the return reg to success
+		//tcb_ptr->reg[X] = 1;
+		// In the future we should return the operation status received in the response message
+
+		//Release task to execute
+		tcb_ptr->reg[0] = 1;
+		tcb_ptr->scheduling_ptr->waiting_msg = 0;
+		if (current == &idle_tcb){
+			need_scheduling = 1;
+		}
+		puts("IO_REQ_ACK - Task released");
+		break;
+	case IO_REQ_NACK:
+		puts("IO_REQ_NACK");
+		tcb_ptr = searchTCB(p->consumer_task);
+
+		// read nack message
+		// check id
+
+		// Update the return reg to failure
+		//tcb_ptr->reg[X] = 1;
+
+		//Release task to execute
+		tcb_ptr->reg[0] = 1;
+		tcb_ptr->scheduling_ptr->waiting_msg = 0;
+		if (current == &idle_tcb){
+			need_scheduling = 1;
+		}
+		puts("IO_REQ_NACK - Task released");
+		break;
 
 	case MESSAGE_REQUEST: //This case is the most complicated of the Memphis if you understand it, so you understand all task communication protocol
 	//This case sincronizes the communication messages also in case of task migration, the migration allows several scenarios, that are handled inside this case

@@ -10,6 +10,7 @@ from time import sleep
 
 
 ENABLE_GUI=0
+ENABLE_QUESTA_GUI=0
 
 def call_debugger(testacase_path):
     tarffic_router_path = testacase_path+"/debug/traffic_router.txt"
@@ -95,11 +96,12 @@ elif system_model == "scmod" or system_model == "vhdl":
     sim_file.write("\nrun "+str(SIM_TIME)+"ms")
     sim_file.close()
     
-    #Runs Questa in with GUI enabled
-    #os.system("cd "+SCENARIO_PATH+"; vsim -do sim.do")
-    
-    #Runs Questa in command line
-    os.system("cd "+SCENARIO_PATH+"; vsim -c -do sim.do")
+    if ENABLE_QUESTA_GUI == 1:
+        #Runs Questa in with GUI enabled
+        os.system("cd "+SCENARIO_PATH+"; vsim -do sim.do")
+    else:
+        #Runs Questa in command line
+        os.system("cd "+SCENARIO_PATH+"; vsim -c -do sim.do")
     
         
         
