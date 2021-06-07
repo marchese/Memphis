@@ -87,7 +87,7 @@ begin
                when sending_request_ack =>
 
                   req_pckt(0) := x"00000100";
-                  req_pckt(1) := x"0000000C";
+                  req_pckt(1) := x"0000000B";
                   req_pckt(2) := service_request_ack;
                   req_pckt(3) := x"C0000001";
                   req_pckt(4) := request.task_id;
@@ -105,7 +105,7 @@ begin
                when sending_request_nack =>
 
                   req_pckt(0) := x"00000100";
-                  req_pckt(1) := x"0000000C";
+                  req_pckt(1) := x"0000000B";
                   req_pckt(2) := service_request_nack;
                   req_pckt(3) := x"C0000001";
                   req_pckt(4) := nack_task_id;
@@ -123,7 +123,7 @@ begin
                when sending_write_response =>
 
                   write_ack_pckt(0) := x"00000100";
-                  write_ack_pckt(1) := x"0000000C";
+                  write_ack_pckt(1) := x"0000000B";
                   write_ack_pckt(2) := service_write_response;
                   write_ack_pckt(3) := x"C0000001";
                   write_ack_pckt(4) := request.task_id;

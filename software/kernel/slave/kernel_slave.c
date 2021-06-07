@@ -653,7 +653,7 @@ int handle_packet(volatile ServiceHeader * p) {
 		// Send the actual read/write
 		msg_ptr = (Message *)(tcb_ptr->offset | tcb_ptr->reg[3]);
 		puts("send_io_write BEGIN\n");
-		send_io_write(p->peripheral_task_id, p->peripheral_id, p->header, 3, msg_ptr);
+		send_io_write(p->consumer_task, p->peripheral_id, p->header, 3, msg_ptr);
 		puts("send_io_write END\n");
 
 		// Update the return reg to success
@@ -670,6 +670,8 @@ int handle_packet(volatile ServiceHeader * p) {
 		break;
 	case IO_WRITE_RESPONSE:
 		puts("IO_WRITE_RESPONSE BEGIN\n");
+		// TODO: Revisar consumer_task
+		tcb_ptr = searchTCB(p->consumer_task);
 		putsv("peripheral_id: ", p->peripheral_id);
 		putsv("peripheral_task_id: ", p->peripheral_task_id);
 		putsv("peripheral_write_status: ", p->peripheral_write_status);

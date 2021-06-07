@@ -113,6 +113,7 @@ void send_packet_raw(ServiceHeader *p, unsigned int payload_size, unsigned int i
 {
 	while (MemoryRead(DMNI_SEND_ACTIVE));
 
+	//TODO: não somar 2 do header e size
 	MemoryWrite(DMNI_SIZE, p->payload_size + 2 - dmni_msg_size);
 	MemoryWrite(DMNI_ADDRESS, (unsigned int)p);
 	if (dmni_msg_size > 0){
