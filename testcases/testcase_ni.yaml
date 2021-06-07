@@ -12,3 +12,6 @@ hw:
     - name: TEST_PERIPHERAL
       pe: 1,1
       port: E
+    - name: WB_PERIPHERAL
+      pe: 0,1
+      port: N

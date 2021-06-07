@@ -134,5 +134,6 @@ void read_packet(ServiceHeader *p){
 	MemoryWrite(DMNI_START, 1);
 	//Waits the DMNI copy all data to memory before release the software to access it
 	while (MemoryRead(DMNI_RECEIVE_ACTIVE));
+	puts("angelo\n");
 
 }

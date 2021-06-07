@@ -138,6 +138,10 @@ def generate_wave_generic(yaml_r, system_model):
                 wave_lines.append(pe_group + router_group + input_group + signal_path + "credit_i("+p+")\n")  
                 count = count+1;
             
+    wave_lines.append("add wave -position insertpoint -group {NI} sim:/test_bench/network_interface/*\n")
+    wave_lines.append("add wave -position insertpoint -group {WB_MEM} sim:/test_bench/wb_memory/*\n")
+    wave_lines.append("add wave -position insertpoint -group {WB_MEM} sim:/test_bench/wb_memory/buff\n")
+
     wave_lines.append("configure wave -signalnamewidth 1\n")
     wave_lines.append("configure wave -namecolwidth 217\n")
     wave_lines.append("configure wave -timelineunits ns\n")

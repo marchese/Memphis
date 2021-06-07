@@ -39,8 +39,15 @@ entity Memphis is
 			memphis_test_peripheral_data_out	: out regflit;
 			memphis_test_peripheral_rx	: in std_logic;
 			memphis_test_peripheral_credit_o	: out std_logic;
-			memphis_test_peripheral_data_in	: in regflit
-        	
+			memphis_test_peripheral_data_in	: in regflit;
+		 	
+		 	-- IO interface - Create the IO interface for your component here:
+			memphis_wb_peripheral_tx	: out std_logic;
+			memphis_wb_peripheral_credit_i	: in std_logic;
+			memphis_wb_peripheral_data_out	: out regflit;
+			memphis_wb_peripheral_rx	: in std_logic;
+			memphis_wb_peripheral_credit_o	: out std_logic;
+			memphis_wb_peripheral_data_in	: in regflit
         );
 end;
 
@@ -175,6 +182,15 @@ architecture Memphis of Memphis is
 					rx(TEST_PERIPHERAL)(io_port(i)) <= memphis_test_peripheral_rx ;
 					memphis_test_peripheral_credit_o  <= credit_o(TEST_PERIPHERAL)(io_port(i));
 					data_in(TEST_PERIPHERAL)(io_port(i)) <= memphis_test_peripheral_data_in;
+				end generate;
+                
+				wb_peripheral_connection: if i = WB_PERIPHERAL and io_port(i) /= NPORT generate
+					memphis_wb_peripheral_tx	<=	tx(WB_PERIPHERAL)(io_port(i));
+					memphis_wb_peripheral_data_out <= data_out(WB_PERIPHERAL)(io_port(i));
+					credit_i(WB_PERIPHERAL)(io_port(i)) <= memphis_wb_peripheral_credit_i;
+					rx(WB_PERIPHERAL)(io_port(i)) <= memphis_wb_peripheral_rx ;
+					memphis_wb_peripheral_credit_o  <= credit_o(WB_PERIPHERAL)(io_port(i));
+					data_in(WB_PERIPHERAL)(io_port(i)) <= memphis_wb_peripheral_data_in;
 				end generate;
                 
         end generate proc;

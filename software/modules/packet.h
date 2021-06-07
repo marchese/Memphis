@@ -47,6 +47,7 @@ typedef struct {
 	union {
 		unsigned int source_PE;				//!<Store the packet source PE address
 		unsigned int peripheral_address;
+		unsigned int peripheral_write_status;
 	};
 
 	union {

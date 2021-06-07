@@ -151,6 +151,32 @@ package standards is
         function RouterAddress(router: integer) return std_logic_vector; 
         function log_filename(i: integer) return string;
 
+---------------------------------------------------------
+-- NETWORK INTERFACE
+---------------------------------------------------------
+
+   type ni_service_request is record
+      task_id     : std_logic_vector(TAM_FLIT-1 downto 0);
+      source_pe   : std_logic_vector(TAM_FLIT-1 downto 0);
+      border_dir  : std_logic_vector(TAM_FLIT-1 downto 0);
+      size        : std_logic_vector(TAM_FLIT-1 downto 0);
+   end record ni_service_request; 
+
+   type service_request_packet is array (0 to 12) of std_logic_vector(TAM_FLIT-1 downto 0);
+   type service_request_write_packet is array (0 to 12) of std_logic_vector(TAM_FLIT-1 downto 0);
+   type service_request_read_packet is array (0 to 12) of std_logic_vector(TAM_FLIT-1 downto 0);
+   type service_write_response_packet is array (0 to 12) of std_logic_vector(TAM_FLIT-1 downto 0);
+
+   constant read_response_header_size : integer := 6;
+
+   constant service_request        : std_logic_vector(TAM_FLIT-1 downto 0) := x"00000400";
+   constant service_request_ack    : std_logic_vector(TAM_FLIT-1 downto 0) := x"00000410";
+   constant service_request_nack   : std_logic_vector(TAM_FLIT-1 downto 0) := x"00000420";
+   constant service_request_write  : std_logic_vector(TAM_FLIT-1 downto 0) := x"00000430";
+   constant service_write_response : std_logic_vector(TAM_FLIT-1 downto 0) := x"00000440";
+   constant service_request_read   : std_logic_vector(TAM_FLIT-1 downto 0) := x"00000450";
+   constant service_read_response  : std_logic_vector(TAM_FLIT-1 downto 0) := x"00000460";
+
 end standards;
 
 package body standards is 

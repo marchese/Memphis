@@ -273,7 +273,16 @@ void send_io_write(int task_id, unsigned int target_peripheral, unsigned int req
 	p->peripheral_task_id = task_id;
 	p->peripheral_address = peripheral_address;
 	p->peripheral_write_size = msg->length;
+	unsigned int *pkt = p;
 
+	/*for (int i = 0; i < p->payload_size - msg->length + 2; i++) {
+		pkt++;
+		puts("\tpkt(");
+		puts(itoa(i));
+		puts("): ");
+		puts(itoa( *pkt ));
+		puts("\n");
+	}
 	putsv("msg_length: ", msg->length);
 	for (int i = 0; i < msg->length; i++) {
 		puts("\tmsg(");
@@ -283,7 +292,7 @@ void send_io_write(int task_id, unsigned int target_peripheral, unsigned int req
 		//puts(" => addr: ");
 		//puts(itoa(&msg->msg[i]));
 		puts("\n");
-	}
+	}*/
 
 	send_packet_raw(p, p->payload_size, msg->msg, msg->length);
 }
@@ -638,25 +647,40 @@ int handle_packet(volatile ServiceHeader * p) {
 	switch (p->service) {
 
 	case IO_REQ_ACK:
-		puts("IO_REQ_ACK\n");
+		puts("IO_REQ_ACK BEGIN\n");
 		tcb_ptr = searchTCB(p->consumer_task);
 
 		// Send the actual read/write
 		msg_ptr = (Message *)(tcb_ptr->offset | tcb_ptr->reg[3]);
+		puts("send_io_write BEGIN\n");
 		send_io_write(p->peripheral_task_id, p->peripheral_id, p->header, 3, msg_ptr);
-		puts("send_io_write DONE\n");
+		puts("send_io_write END\n");
 
 		// Update the return reg to success
 		//tcb_ptr->reg[X] = 1;
 		// In the future we should return the operation status received in the response message
 
-		//Release task to execute
+		// Do not release the task yet
+		/*tcb_ptr->reg[0] = 0;
+		tcb_ptr->scheduling_ptr->waiting_msg = 1;
+		if (current == &idle_tcb){
+			need_scheduling = 1;
+		}*/
+		puts("IO_REQ_ACK END\n");
+		break;
+	case IO_WRITE_RESPONSE:
+		puts("IO_WRITE_RESPONSE BEGIN\n");
+		putsv("peripheral_id: ", p->peripheral_id);
+		putsv("peripheral_task_id: ", p->peripheral_task_id);
+		putsv("peripheral_write_status: ", p->peripheral_write_status);
+
+		// Release the task
 		tcb_ptr->reg[0] = 1;
 		tcb_ptr->scheduling_ptr->waiting_msg = 0;
 		if (current == &idle_tcb){
 			need_scheduling = 1;
 		}
-		puts("IO_REQ_ACK - Task released");
+		puts("IO_WRITE_RESPONSE END - Task released\n");
 		break;
 	case IO_REQ_NACK:
 		puts("IO_REQ_NACK");

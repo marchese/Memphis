@@ -1,6 +1,8 @@
 apps:
-  - name: ext_mem
+  #- name: ext_mem
+  - name: wb_ext_mem
     cluster: 0
     start_time_ms: 0
     static_mapping:
-      ext_mem: [1,0]
+      #ext_mem: [1,0]
+      wb_ext_mem: [1,0]

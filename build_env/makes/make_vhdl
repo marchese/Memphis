@@ -12,6 +12,8 @@ COMP_2008 =vcom -2008 -work $(LIB)
 MEMPHIS_PKG	=memphis_pkg
 STAND		=standards
 TOP 		=memphis test_bench
+SIPHASH		=siphash_package sipround siphash
+NI 			=request_record_cam requests_packaging wishbone_interface network_interface
 IO			=app_injector
 PE	 		=pe
 DMNI 		=dmni
@@ -24,19 +26,21 @@ STAND_SRC	    = $(addprefix vhdl/, 						$(STAND:=.vhd) 		)
 TOP_SRC	    	= $(addprefix vhdl/, 						$(TOP:=.vhd) 		)
 IO_SRC			= $(addprefix sc/peripherals/, 				$(IO:=.cpp) $(IO:=.h))
 PE_SRC			= $(addprefix vhdl/pe/, 					$(PE:=.vhd)   		)
+SIPHASH_SRC		= $(addprefix vhdl/ni/siphash/, 			$(SIPHASH:=.vhd) 	)
+NI_SRC			= $(addprefix vhdl/ni/, 					$(NI:=.vhd) 		)
 DMNI_SRC		= $(addprefix vhdl/pe/dmni/, 				$(DMNI:=.vhd) 		)
 MEMORY_SRC		= $(addprefix ../base_scenario/ram_pe/,		$(MEMORY:=.vhd) 	) 
 PROCESSOR_SRC	= $(addprefix vhdl/pe/processor/plasma/, 	$(PROCESSOR:=.vhd) 	)
 ROUTER_SRC		= $(addprefix vhdl/pe/router/, 				$(ROUTER:=.vhd) 	)
 IO_VHDL_SRC		= $(wildcard vhdl/peripherals/*.vhd)
-IO_VHDL			= $(patsubst %.vhd,%,$(IO_VHDL_SRC))
+IO_VHDL			= $(patsubst vhdl/peripherals/%.vhd,%,$(IO_VHDL_SRC))
 
 #This target dir $(TGT_SCCOM_PATH) is created automatically by questa or modelsim, please ensures that your path math it the following 
 TGT_SCCOM_PATH = $(LIB)/_sc/linux_x86_64_gcc-4.7.4/
 
 IO_TGT	 		=$(addprefix $(TGT_SCCOM_PATH), $(IO:=.o))
 
-default: lib $(MEMPHIS_PKG) $(STAND) $(ROUTER) $(PROCESSOR) $(DMNI) $(MEMORY) $(PE) $(IO_TGT) $(IO_VHDL) $(TOP)
+default: lib $(MEMPHIS_PKG) $(STAND) $(ROUTER) $(PROCESSOR) $(DMNI) $(MEMORY) $(PE) $(IO_TGT) $(IO_VHDL) $(SIPHASH) $(NI) $(TOP)
 	@ $(CC) -link -B/usr/bin/
 
 lib:
@@ -60,8 +64,8 @@ $(IO_TGT): $(IO_SRC)
 	$(SC_C) $(dir $<)$(notdir $*).cpp
 	
 $(IO_VHDL): $(IO_VHDL_SRC)
-	@printf "${COR}Compiling VHDL source: %s ...${NC}\n" "$<"
-	$(COMP_2008) $<
+	@printf "${COR}Compiling VHDL source: %s ...${NC}\n" "$(dir $<)$@.vhd"
+	$(COMP_2008) $(dir $<)$@.vhd
 
 $(PE): $(PE_SRC)
 	@printf "${COR}Compiling VHDL source: %s ...${NC}\n" "$(dir $<)$@.vhd"
@@ -70,6 +74,14 @@ $(PE): $(PE_SRC)
 $(DMNI): $(DMNI_SRC)
 	@printf "${COR}Compiling VHDL source: %s ...${NC}\n" "$(dir $<)$@.vhd"
 	$(COMP) $(dir $<)$@.vhd
+
+$(SIPHASH): $(SIPHASH_SRC)
+	@printf "${COR}Compiling VHDL source: %s ...${NC}\n" "$(dir $<)$@.vhd"
+	$(COMP_2008) $(dir $<)$@.vhd
+
+$(NI): $(NI_SRC)
+	@printf "${COR}Compiling VHDL source: %s ...${NC}\n" "$(dir $<)$@.vhd"
+	$(COMP_2008) $(dir $<)$@.vhd
 
 $(MEMORY): $(MEMORY_SRC)
 	@printf "${COR}Compiling VHDL source: %s ...${NC}\n" "$(dir $<)$@.vhd"
