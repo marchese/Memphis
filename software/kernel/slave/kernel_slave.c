@@ -637,6 +637,7 @@ int handle_packet(volatile ServiceHeader * p) {
 	unsigned int app_tasks_location[MAX_TASKS_APP];
 	PipeSlot * slot_ptr;
 	Message * msg_ptr;
+	int addr;
 	TCB * tcb_ptr = 0;
 	unsigned int *arg1;
 	//Message tmp_msg;
@@ -652,8 +653,9 @@ int handle_packet(volatile ServiceHeader * p) {
 
 		// Send the actual read/write
 		msg_ptr = (Message *)(tcb_ptr->offset | tcb_ptr->reg[3]);
+		addr = tcb_ptr->reg[5];
 		puts("send_io_write BEGIN\n");
-		send_io_write(p->consumer_task, p->peripheral_id, p->header, 3, msg_ptr);
+		send_io_write(p->consumer_task, p->peripheral_id, p->header, addr, msg_ptr);
 		puts("send_io_write END\n");
 
 		// Update the return reg to success

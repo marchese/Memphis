@@ -21,7 +21,7 @@ int main()
 	}
 	msg.length = i;
 
-	SendIO(&msg, WB_PERIPHERAL);
+	SendIO(&msg, WB_PERIPHERAL, 0xA);
 
 	Echo("END_FIB");
 	exit();

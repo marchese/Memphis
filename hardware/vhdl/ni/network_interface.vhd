@@ -95,6 +95,7 @@ signal analysing_counter          : integer;
 signal processing_source_pe       : std_logic_vector(TAM_FLIT-1 downto 0);
 signal processing_task_id         : std_logic_vector(TAM_FLIT-1 downto 0);
 signal processing_size            : std_logic_vector(TAM_FLIT-1 downto 0);
+signal processing_address         : std_logic_vector(TAM_FLIT-1 downto 0);
 signal nack_task_id               : std_logic_vector(TAM_FLIT-1 downto 0);
 
 signal write_request_processing   : std_logic;
@@ -206,6 +207,7 @@ begin
                   processing_source_pe <= (others => '0');
                   processing_task_id <= (others => '0');
                   processing_size <= (others => '0');
+                  processing_address <= (others => '0');
                   s_credit_out_processing <= '1';
                   write_address <= (others => '0');
 
@@ -250,9 +252,11 @@ begin
                   elsif analysing_counter = 1 and rx = '1' then
                      processing_task_id <= data_in;
                   elsif analysing_counter = 2 and rx = '1' then
+                     processing_address <= data_in;
+                  elsif analysing_counter = 3 and rx = '1' then
                      processing_size <= data_in;
                      s_credit_out_processing <= '0';
-                  elsif analysing_counter = 3 then
+                  elsif analysing_counter >= 4 then
                      -- take a decision if this is an authorized request
                      s_credit_out_processing <= '1';
                      analysing_done <= '1';
@@ -265,7 +269,11 @@ begin
                      end if;
                   end if;
 
-                  if rx = '1' then
+                  if analysing_counter < 4 then
+                     if rx = '1' then
+                        analysing_counter <= analysing_counter + 1;
+                     end if;
+                  else
                      analysing_counter <= analysing_counter + 1;
                   end if;
 
@@ -285,7 +293,7 @@ begin
                         send_write <= '1';
                      end if;
 
-                     if receiving_counter = packet_length - 4 then
+                     if receiving_counter = processing_size then
                         write_request_done <= '1';
                         receiving_done <= '1';
                         send_write <= '0';
@@ -295,7 +303,7 @@ begin
                         receiving_counter <= receiving_counter + 1;
                      end if;
 
-                     write_address <= std_logic_vector(to_unsigned(receiving_counter, 8));
+                     write_address <= std_logic_vector(to_unsigned(to_integer(unsigned(processing_address)) + receiving_counter, 8));
                   else
                      send_write <= '0';
                   end if;
